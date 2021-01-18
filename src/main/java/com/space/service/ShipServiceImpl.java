@@ -27,7 +27,7 @@ public class ShipServiceImpl implements ShipService {
         this.shipRepository = shipRepository;
     }
 
-    private void paramsChecker(Ship shipRequired) throws BadRequestException {
+    private void paramsChecker(Ship shipRequired) {
 
         if (shipRequired.getName() != null && (shipRequired.getName().length() < 1 || shipRequired.getName().length() > 50)) {
             throw new BadRequestException("The ship name is too long or absent");
@@ -96,7 +96,7 @@ public class ShipServiceImpl implements ShipService {
     }
 
     @Override
-    public Ship getShip(Long id) throws ShipNotFoundException {
+    public Ship getShip(Long id) {
         if (!shipRepository.existsById(id)) {
             throw new ShipNotFoundException("Ship is not found");
         }
@@ -215,8 +215,18 @@ public class ShipServiceImpl implements ShipService {
 
     @Override
     public Specification<Ship> speedFilter(Double min, Double max) {
-        String x = "speed";
-        return Filter(min, max,x);
+        return (root, query, criteriaBuilder) -> {
+            if (min == null && max == null) {
+                return null;
+            }
+            if (min == null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get("speed"), max);
+            }
+            if (max == null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("speed"), min);
+            }
+            return criteriaBuilder.between(root.get("speed"), min, max);
+        };
     }
 
     @Override
@@ -235,24 +245,19 @@ public class ShipServiceImpl implements ShipService {
         };
     }
 
-    public Specification<Ship> Filter(Double min, Double max, String x) {
+    @Override
+    public Specification<Ship> ratingFilter(Double min, Double max) {
         return (root, query, criteriaBuilder) -> {
             if (min == null && max == null) {
                 return null;
             }
             if (min == null) {
-                return criteriaBuilder.lessThanOrEqualTo(root.get(x), max);
+                return criteriaBuilder.lessThanOrEqualTo(root.get("rating"), max);
             }
             if (max == null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get(x), min);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("rating"), min);
             }
-            return criteriaBuilder.between(root.get(x), min, max);
+            return criteriaBuilder.between(root.get("rating"), min, max);
         };
-    }
-
-    @Override
-    public Specification<Ship> ratingFilter(Double min, Double max) {
-        String x = "rating";
-        return Filter(min, max,x);
     }
 }

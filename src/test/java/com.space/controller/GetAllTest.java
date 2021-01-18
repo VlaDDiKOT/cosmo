@@ -2,26 +2,52 @@ package com.space.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.space.config.MyWebAppInit;
+import com.space.config.WebConfig;
 import com.space.controller.utils.ShipInfoTest;
+import com.space.controller.utils.TestDataSourceConfig;
 import com.space.controller.utils.TestsHelper;
 import com.space.model.ShipType;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
-import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class GetAllTest extends AbstractTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {TestDataSourceConfig.class, MyWebAppInit.class, WebConfig.class})
+@WebAppConfiguration
+@Sql(scripts = "classpath:test.sql", config = @SqlConfig(encoding = "UTF-8"))
+public class GetAllTest {
+
+    private WebApplicationContext context;
+    private MockMvc mockMvc;
 
     private TestsHelper testsHelper = new TestsHelper();
     private ObjectMapper mapper = new ObjectMapper();
     private TypeReference<List<ShipInfoTest>> typeReference = new TypeReference<List<ShipInfoTest>>() {
     };
+
+    @Before
+    public void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
 
     //test1
     @Test
@@ -36,7 +62,7 @@ public class GetAllTest extends AbstractTest {
         List<ShipInfoTest> actual = mapper.readValue(contentAsString, typeReference);
         List<ShipInfoTest> expected = testsHelper.getShipInfosByPage(0, 3,
                 testsHelper.getAllShips());
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships.", actual.equals(expected));
     }
 
     //test2
@@ -53,7 +79,7 @@ public class GetAllTest extends AbstractTest {
                 testsHelper.getShipInfosByName("ra",
                         testsHelper.getAllShips()));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами name и pageNumber.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами name и pageNumber.", actual.equals(expected));
     }
 
     //test3
@@ -70,7 +96,7 @@ public class GetAllTest extends AbstractTest {
         List<ShipInfoTest> expected = testsHelper.getShipInfosByPage(0, 4,
                 testsHelper.getShipInfosByPlanet("ur", testsHelper.getAllShips()));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами planet и pageSize.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами planet и pageSize.", actual.equals(expected));
     }
 
     //test4
@@ -86,14 +112,13 @@ public class GetAllTest extends AbstractTest {
         String contentAsString = result.getResponse().getContentAsString();
 
         List<ShipInfoTest> actual = mapper.readValue(contentAsString, typeReference);
-
         List<ShipInfoTest> expected = testsHelper.getShipInfosByPage(0, 3,
                 testsHelper.getShipInfosByShipType(ShipType.MILITARY,
                         testsHelper.getShipInfosByAfter(32503672800000L,
                                 testsHelper.getShipInfosByBefore(32850741600000L,
                                         testsHelper.getAllShips()))));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами shipType, after и before.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами shipType, after и before.", actual.equals(expected));
     }
 
     //test5
@@ -113,7 +138,7 @@ public class GetAllTest extends AbstractTest {
                                 testsHelper.getShipInfosByMaxSpeed(0.6,
                                         testsHelper.getAllShips()))));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами shipType, minSpeed и maxSpeed.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами shipType, minSpeed и maxSpeed.", actual.equals(expected));
     }
 
     //test6
@@ -133,7 +158,7 @@ public class GetAllTest extends AbstractTest {
                                 testsHelper.getShipInfosByMaxCrewSize(1000,
                                         testsHelper.getAllShips()))));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами shipType, minCrewSize и maxCrewSize.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами shipType, minCrewSize и maxCrewSize.", actual.equals(expected));
     }
 
     //test7
@@ -153,7 +178,7 @@ public class GetAllTest extends AbstractTest {
                                 testsHelper.getShipInfosByMaxRating(4.,
                                         testsHelper.getAllShips()))));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами isUsed, minRating и maxRating.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами isUsed, minRating и maxRating.", actual.equals(expected));
     }
 
     //test8
@@ -173,7 +198,7 @@ public class GetAllTest extends AbstractTest {
                                 testsHelper.getShipInfosByMaxRating(7.,
                                         testsHelper.getAllShips()))));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами isUsed, maxSpeed и maxRating.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами isUsed, maxSpeed и maxRating.", actual.equals(expected));
     }
 
     //test9
@@ -192,7 +217,7 @@ public class GetAllTest extends AbstractTest {
                         testsHelper.getShipInfosByName("ca",
                                 testsHelper.getAllShips())));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами name и order.", expected, ships);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами name и order.", ships.equals(expected));
     }
 
     //test10
@@ -215,6 +240,11 @@ public class GetAllTest extends AbstractTest {
                                         testsHelper.getShipInfosByMaxCrewSize(1500,
                                                 testsHelper.getAllShips())))));
 
-        assertEquals("Возвращается не правильный результат при запросе GET /rest/ships с параметрами after, before, minCrewSize и maxCrewSize.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами after, before, minCrewSize и maxCrewSize.", actual.equals(expected));
+    }
+
+    @Autowired
+    public void setContext(WebApplicationContext context) {
+        this.context = context;
     }
 }

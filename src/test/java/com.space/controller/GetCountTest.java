@@ -1,19 +1,46 @@
 package com.space.controller;
 
+import com.space.config.MyWebAppInit;
+import com.space.config.WebConfig;
+import com.space.controller.utils.TestDataSourceConfig;
 import com.space.controller.utils.TestsHelper;
 import com.space.model.ShipType;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.Assert.assertSame;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class GetCountTest extends AbstractTest {
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {TestDataSourceConfig.class, MyWebAppInit.class, WebConfig.class})
+@WebAppConfiguration
+@Sql(scripts = "classpath:test.sql", config = @SqlConfig(encoding = "UTF-8"))
+public class GetCountTest {
+
+    private WebApplicationContext context;
+    private MockMvc mockMvc;
 
     private TestsHelper testsHelper = new TestsHelper();
+
+    @Before
+    public void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
 
     //test1
     @Test
@@ -27,7 +54,7 @@ public class GetCountTest extends AbstractTest {
         int actual = Integer.parseInt(contentAsString);
         int expected = testsHelper.getAllShips().size();
 
-        assertSame("Возвращается не правильный результат при запросе GET /rest/ships/count.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count.", actual == expected);
     }
 
     //test2
@@ -45,7 +72,7 @@ public class GetCountTest extends AbstractTest {
                         testsHelper.getShipInfosByMinSpeed(0.3,
                                 testsHelper.getAllShips()))).size();
 
-        assertSame("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами minRating, minCrewSize и minSpeed.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами minRating, minCrewSize и minSpeed.", actual == expected);
     }
 
     //test3
@@ -64,7 +91,7 @@ public class GetCountTest extends AbstractTest {
                         testsHelper.getShipInfosByName("nt",
                                 testsHelper.getAllShips()))).size();
 
-        assertSame("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами minRating,minCrewSize и minSpeed.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами minRating,minCrewSize и minSpeed.", actual == expected);
     }
 
     //test4
@@ -81,7 +108,8 @@ public class GetCountTest extends AbstractTest {
                 testsHelper.getShipInfosByShipType(ShipType.MERCHANT,
                         testsHelper.getAllShips())).size();
 
-        assertSame("Возвращается не правильный результат при запросе GET rest/ships/count с параметрами shipType и isUsed.", expected, actual);
+
+        assertTrue("Возвращается не правильный результат при запросе GET rest/ships/count с параметрами shipType и isUsed.", actual == expected);
     }
 
     //test5
@@ -98,7 +126,7 @@ public class GetCountTest extends AbstractTest {
                 testsHelper.getShipInfosByShipType(ShipType.MILITARY,
                         testsHelper.getAllShips())).size();
 
-        assertSame("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами shipType и maxCrewSize.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами shipType и maxCrewSize.", actual == expected);
     }
 
     //test6
@@ -113,7 +141,7 @@ public class GetCountTest extends AbstractTest {
         int actual = Integer.parseInt(contentAsString);
         int expected = testsHelper.getShipInfosByPlanet("us", testsHelper.getAllShips()).size();
 
-        assertSame("Возвращается не правильный результат при запросе GET /rest/ships/count с параметром planet.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count с параметром planet.", actual == expected);
     }
 
     //test7
@@ -132,7 +160,7 @@ public class GetCountTest extends AbstractTest {
                         testsHelper.getShipInfosByMaxSpeed(0.7,
                                 testsHelper.getAllShips()))).size();
 
-        assertSame("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами shipType, before и maxSpeed.", expected, actual);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами shipType, before и maxSpeed.", actual == expected);
     }
 
     //test8
@@ -150,6 +178,11 @@ public class GetCountTest extends AbstractTest {
                         testsHelper.getShipInfosByMaxSpeed(0.6,
                                 testsHelper.getAllShips()))).size();
 
-        assertSame("Во звращается не правильный результат при запросе GET /rest/ships/count с параметрами isUsed, minSpeed и maxSpeed.", expected, actual);
+        assertTrue("Во звращается не правильный результат при запросе GET /rest/ships/count с параметрами isUsed, minSpeed и maxSpeed.", actual == expected);
+    }
+
+    @Autowired
+    public void setContext(WebApplicationContext context) {
+        this.context = context;
     }
 }

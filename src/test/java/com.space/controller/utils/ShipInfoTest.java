@@ -57,16 +57,4 @@ public class ShipInfoTest {
     public int hashCode() {
         return Objects.hash(id, name, planet, shipType, prodDate, isUsed, speed, crewSize, rating);
     }
-
-    @Override
-    public String toString() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(prodDate);
-        int prodYear = calendar.get(Calendar.YEAR);
-        return "ShipInfoTest{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", prodYear=" + prodYear +
-                '}';
-    }
 }

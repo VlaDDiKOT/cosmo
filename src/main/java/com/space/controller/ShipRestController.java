@@ -28,11 +28,11 @@ public class ShipRestController {
     @ResponseStatus(HttpStatus.OK)
     public List<Ship> getAllExistingShipsList(
             @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "planet", required = false) String planet,
+            @RequestParam(value = "shipType", required = false) ShipType shipType,
             @RequestParam(value = "after", required = false) Long after,
             @RequestParam(value = "before", required = false) Long before,
             @RequestParam(value = "isUsed", required = false) Boolean isUsed,
-            @RequestParam(value = "planet", required = false) String planet,
-            @RequestParam(value = "shipType", required = false) ShipType shipType,
             @RequestParam(value = "minSpeed", required = false) Double minSpeed,
             @RequestParam(value = "maxSpeed", required = false) Double maxSpeed,
             @RequestParam(value = "minCrewSize", required = false) Integer minCrewSize,
@@ -48,7 +48,7 @@ public class ShipRestController {
         return service.getAllExistingShipsList(
                 Specification.where(
                         service.nameFilter(name)
-                                .and(service.planetFilter(planet)))
+                        .and(service.planetFilter(planet)))
                         .and(service.shipTypeFilter(shipType))
                         .and(service.dateFilter(after, before))
                         .and(service.usageFilter(isUsed))
@@ -76,7 +76,7 @@ public class ShipRestController {
         return service.getAllExistingShipsList(
                 Specification.where(
                         service.nameFilter(name)
-                                .and(service.planetFilter(planet)))
+                        .and(service.planetFilter(planet)))
                         .and(service.shipTypeFilter(shipType))
                         .and(service.dateFilter(after, before))
                         .and(service.usageFilter(isUsed))
